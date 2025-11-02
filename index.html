@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INI-CET Centre Allocation Simulator</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>INI-CET Centre Allocation Simulator</h1>
+            <p>Enter your 6-digit area pincode to find your nearest exam city.</p>
+        </header>
+
+        <main>
+            <div class="allocation-section">
+                <input type="text" id="pincode-input" placeholder="Enter 6-digit Pincode" maxlength="6">
+                <button id="allocate-btn">Allocate Test Centre</button>
+            </div>
+
+            <div id="result-section" class="result-section">
+                <!-- Results will be displayed here by JavaScript -->
+            </div>
+        </main>
+        
+        <div class="centre-list-container">
+            <h2>Available Test Centres</h2>
+            <div id="centre-list" class="centre-list">
+                <!-- Centre list will be populated by JavaScript -->
+                <div class="loader"></div>
+            </div>
+        </div>
+
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
