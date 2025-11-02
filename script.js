@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let testCentres = [];
     let pincodeData = new Map();
 
-    // 1. Fetch and process data
+    // 1. Fetch and process data (with improved coordinate handling)
     async function loadData() {
         try {
             // Fetch test centres from CSV
@@ -18,11 +18,34 @@ document.addEventListener('DOMContentLoaded', () => {
             // Fetch pincode coordinates from JSON
             const pincodeResponse = await fetch('pincode_coordinates.json');
             const pincodeJson = await pincodeResponse.json();
+            
             pincodeJson.forEach(item => {
-                pincodeData.set(item.pincode, {
-                    lat: item.coordinates[1],
-                    lon: item.coordinates[0]
-                });
+                // Skip if the entry is incomplete or invalid
+                if (!item.pincode || !item.coordinates || item.coordinates.length === 0) {
+                    return;
+                }
+
+                let finalCoords;
+
+                // **--- THIS IS THE NEW LOGIC ---**
+                // This block intelligently handles different coordinate structures.
+                let point = item.coordinates;
+                // It drills down into nested arrays until it finds the first actual [longitude, latitude] pair.
+                while (Array.isArray(point) && Array.isArray(point[0])) {
+                    point = point[0];
+                }
+                finalCoords = point;
+                // **--- END OF NEW LOGIC ---**
+
+                // Final check to ensure we have a valid coordinate pair before adding it.
+                if (finalCoords && finalCoords.length === 2 && typeof finalCoords[0] === 'number' && typeof finalCoords[1] === 'number') {
+                    pincodeData.set(item.pincode, {
+                        lat: finalCoords[1], // Latitude is the second value
+                        lon: finalCoords[0]  // Longitude is the first value
+                    });
+                } else {
+                    console.warn(`Could not process coordinates for pincode: ${item.pincode}`);
+                }
             });
 
             populateCentreList();
@@ -102,22 +125,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (!nearestCity) {
-            resultSection.innerHTML = '<p class="error">Could not determine the nearest city.</p>';
+            resultSection.innerHTML = '<p class="error">Could not determine the nearest city. Check if test centre pincodes are in the coordinates file.</p>';
             return;
         }
 
         // Get a random city that is NOT the nearest one
         let randomCity = null;
-        do {
-            const randomIndex = Math.floor(Math.random() * testCentres.length);
-            randomCity = testCentres[randomIndex];
-        } while (randomCity.city === nearestCity.city && testCentres.length > 1);
+        if (testCentres.length > 1) {
+            do {
+                const randomIndex = Math.floor(Math.random() * testCentres.length);
+                randomCity = testCentres[randomIndex];
+            } while (randomCity.city === nearestCity.city);
+        } else {
+            randomCity = nearestCity; // Fallback if there's only one city
+        }
+        
 
         // Display results
         resultSection.innerHTML = `
             <p class="nearest">Your nearest city is ${nearestCity.city}.</p>
+            <p class="nearest">NO. This city will not be allotted to you.</p>
             <hr>
-            <p>But your allocated examination city is:</p>
+            <p>Your allocated examination city is:</p>
             <p class="allocated">${randomCity.city}</p>
         `;
     }
@@ -134,5 +163,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial data load
     loadData();
-
 });
