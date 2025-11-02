@@ -116,9 +116,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Display results
         resultSection.innerHTML = `
             <p class="nearest">Your nearest city is ${nearestCity.city}.</p>
-            <p class="nearest">NO. This city will not be allotted to you.</p>
             <hr>
-            <p>Your allocated examination city is:</p>
+            <p>But your allocated examination city is:</p>
             <p class="allocated">${randomCity.city}</p>
         `;
     }
@@ -135,4 +134,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial data load
     loadData();
+
 });
